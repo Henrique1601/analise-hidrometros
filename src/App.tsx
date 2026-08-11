@@ -1,12 +1,7 @@
 import { Dashboard } from './components/Dashboard';
-import './App.css';
 
 function App() {
-  return (
-    <div className="app">
-      <Dashboard />
-    </div>
-  );
+  return <Dashboard />;
 }
 
 export default App;

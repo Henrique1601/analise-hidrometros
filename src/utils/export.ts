@@ -1,4 +1,4 @@
-import { WaterMeterData, Alert } from '../types';
+import type { WaterMeterData, Alert } from '../types';
 
 export function exportToCSV(data: WaterMeterData[], filename: string): void {
   const headers = ['Torre', 'Ap', 'Índice Anterior', 'Índice Atual', 'Consumo (m³)', 'Status'];

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import * as XLSX from 'xlsx';
-import { WaterMeterData } from '../types';
+import type { WaterMeterData } from '../types';
 
 interface UseExcelParserReturn {
   data: WaterMeterData[];

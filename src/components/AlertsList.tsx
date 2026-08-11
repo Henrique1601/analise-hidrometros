@@ -1,4 +1,4 @@
-import { Alert } from '../types';
+import type { Alert } from '../types';
 
 interface AlertsListProps {
   alerts: Alert[];

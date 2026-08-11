@@ -1,4 +1,4 @@
-import { WaterMeterData, AnalysisConfig, AnalysisResult, Alert, TowerData } from '../types';
+import type { WaterMeterData, AnalysisConfig, AnalysisResult, Alert, TowerData } from '../types';
 
 export function analyzeConsumption(
   data: WaterMeterData[],

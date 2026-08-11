@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { analyzeConsumption, updateItemStatus } from '../utils/analysis';
-import { WaterMeterData, AnalysisConfig } from '../types';
+import type { WaterMeterData, AnalysisConfig } from '../types';
 
 describe('analyzeConsumption', () => {
   const defaultConfig: AnalysisConfig = {

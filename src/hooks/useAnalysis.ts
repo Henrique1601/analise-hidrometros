@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { WaterMeterData, AnalysisConfig, AnalysisResult, FilterConfig } from '../types';
+import type { WaterMeterData, AnalysisConfig, AnalysisResult, FilterConfig } from '../types';
 import { analyzeConsumption, updateItemStatus } from '../utils/analysis';
 
 interface UseAnalysisReturn {

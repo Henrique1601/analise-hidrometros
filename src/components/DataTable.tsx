@@ -1,4 +1,4 @@
-import { WaterMeterData, FilterConfig, TowerData } from '../types';
+import type { WaterMeterData, FilterConfig, TowerData } from '../types';
 import { exportAlerts } from '../utils/export';
 
 interface DataTableProps {

@@ -10,7 +10,6 @@ import {
   Droplets,
   FileSpreadsheet
 } from 'lucide-react';
-import clsx from 'clsx';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -29,45 +28,148 @@ const menuItems = [
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const [activeItem, setActiveItem] = useState('dashboard');
 
+  const styles = {
+    sidebar: {
+      position: 'fixed' as const,
+      left: 0,
+      top: 0,
+      height: '100vh',
+      width: isCollapsed ? '80px' : '280px',
+      background: 'rgba(30, 41, 59, 0.95)',
+      backdropFilter: 'blur(12px)',
+      borderRight: '1px solid rgba(148, 163, 184, 0.1)',
+      zIndex: 50,
+      display: 'flex',
+      flexDirection: 'column' as const,
+      transition: 'width 0.3s ease',
+      overflow: 'hidden',
+    },
+    logo: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '20px 16px',
+      borderBottom: '1px solid rgba(148, 163, 184, 0.1)',
+    },
+    logoIcon: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '12px',
+      background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    logoText: {
+      overflow: 'hidden',
+    },
+    logoTitle: {
+      fontWeight: 700,
+      fontSize: '18px',
+      background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      whiteSpace: 'nowrap' as const,
+    },
+    logoSubtitle: {
+      fontSize: '12px',
+      color: '#94a3b8',
+      whiteSpace: 'nowrap' as const,
+    },
+    nav: {
+      flex: 1,
+      padding: '24px 12px',
+      display: 'flex',
+      flexDirection: 'column' as const,
+      gap: '8px',
+    },
+    menuItem: (isActive: boolean) => ({
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      width: '100%',
+      padding: isCollapsed ? '12px' : '12px 16px',
+      borderRadius: '12px',
+      border: 'none',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      justifyContent: isCollapsed ? 'center' : 'flex-start',
+      background: isActive 
+        ? 'linear-gradient(90deg, rgba(139,92,246,0.2), rgba(59,130,246,0.2))' 
+        : 'transparent',
+      color: isActive ? '#fff' : '#94a3b8',
+    }),
+    menuIcon: (isActive: boolean) => ({
+      width: '20px',
+      height: '20px',
+      flexShrink: 0,
+      color: isActive ? '#a78bfa' : 'inherit',
+    }),
+    menuLabel: {
+      fontWeight: 500,
+      whiteSpace: 'nowrap' as const,
+    },
+    footer: {
+      padding: '16px',
+      borderTop: '1px solid rgba(148, 163, 184, 0.1)',
+    },
+    toggleBtn: {
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+      padding: '12px',
+      borderRadius: '12px',
+      border: 'none',
+      cursor: 'pointer',
+      background: 'rgba(51, 65, 85, 0.5)',
+      color: '#94a3b8',
+      transition: 'all 0.2s',
+    },
+  };
+
   return (
-    <aside
-      className={clsx(
-        "fixed left-0 top-0 h-screen glass border-r border-dark-700/50 z-50 flex flex-col transition-all duration-300",
-        isCollapsed ? "w-20" : "w-72"
-      )}
-    >
+    <aside style={styles.sidebar}>
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-dark-700/50">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center flex-shrink-0">
+      <div style={styles.logo}>
+        <div style={styles.logoIcon}>
           <Droplets className="w-6 h-6 text-white" />
         </div>
         {!isCollapsed && (
-          <div className="overflow-hidden">
-            <h1 className="font-bold text-lg gradient-text whitespace-nowrap">Hidrômetros</h1>
-            <p className="text-xs text-dark-400 whitespace-nowrap">Análise Inteligente</p>
+          <div style={styles.logoText}>
+            <div style={styles.logoTitle}>Hidrômetros</div>
+            <div style={styles.logoSubtitle}>Análise Inteligente</div>
           </div>
         )}
       </div>
 
       {/* Menu Items */}
-      <nav className="flex-1 py-6 px-3 space-y-2">
+      <nav style={styles.nav}>
         {menuItems.map((item) => {
           const isActive = activeItem === item.id;
           return (
             <button
               key={item.id}
               onClick={() => setActiveItem(item.id)}
-              className={clsx(
-                "flex items-center gap-3 w-full rounded-xl transition-all duration-200",
-                isCollapsed ? "justify-center px-3 py-3" : "px-4 py-3",
-                isActive 
-                  ? "bg-gradient-to-r from-primary-500/20 to-secondary-500/20 text-white" 
-                  : "text-dark-400 hover:text-white hover:bg-dark-700/50"
-              )}
+              style={styles.menuItem(isActive)}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'rgba(51, 65, 85, 0.5)';
+                  e.currentTarget.style.color = '#fff';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#94a3b8';
+                }
+              }}
             >
-              <item.icon className={clsx("w-5 h-5 flex-shrink-0", isActive && "text-primary-400")} />
+              <item.icon style={styles.menuIcon(isActive)} />
               {!isCollapsed && (
-                <span className="font-medium whitespace-nowrap">{item.label}</span>
+                <span style={styles.menuLabel}>{item.label}</span>
               )}
             </button>
           );
@@ -75,15 +177,21 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       </nav>
 
       {/* Toggle Button */}
-      <div className="px-3 pb-4">
+      <div style={styles.footer}>
         <button
           onClick={onToggle}
-          className="w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-dark-700/50 text-dark-400 hover:text-white hover:bg-dark-600/50 transition-all"
+          style={styles.toggleBtn}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(71, 85, 105, 0.5)';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(51, 65, 85, 0.5)';
+            e.currentTarget.style.color = '#94a3b8';
+          }}
         >
-          {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-          {!isCollapsed && (
-            <span className="text-sm whitespace-nowrap">Recolher</span>
-          )}
+          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          {!isCollapsed && <span style={{ fontSize: '14px' }}>Recolher</span>}
         </button>
       </div>
     </aside>

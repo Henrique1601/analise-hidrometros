@@ -9,15 +9,19 @@ export function Layout({ children }: LayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-dark-950">
+    <div style={{ minHeight: '100vh', background: '#0f172a' }}>
       <Sidebar 
         isCollapsed={isSidebarCollapsed} 
         onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
       />
       
       <main
-        className="min-h-screen p-8 transition-all duration-300"
-        style={{ marginLeft: isSidebarCollapsed ? 80 : 288 }}
+        style={{
+          minHeight: '100vh',
+          padding: '32px',
+          marginLeft: isSidebarCollapsed ? '80px' : '280px',
+          transition: 'margin-left 0.3s ease',
+        }}
       >
         {children}
       </main>

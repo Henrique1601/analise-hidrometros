@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
 import { Sidebar } from './Sidebar';
 
 interface LayoutProps {
@@ -16,14 +15,12 @@ export function Layout({ children }: LayoutProps) {
         onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
       />
       
-      <motion.main
-        initial={false}
-        animate={{ marginLeft: isSidebarCollapsed ? 80 : 280 }}
-        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="min-h-screen p-8"
+      <main
+        className="min-h-screen p-8 transition-all duration-300"
+        style={{ marginLeft: isSidebarCollapsed ? 80 : 288 }}
       >
         {children}
-      </motion.main>
+      </main>
     </div>
   );
 }

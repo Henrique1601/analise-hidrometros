@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { motion } from 'motion/react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Building2 } from 'lucide-react';
@@ -34,9 +33,7 @@ export function TowerChart({ towerData }: TowerChartProps) {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { 
-        display: false 
-      },
+      legend: { display: false },
       tooltip: {
         backgroundColor: 'rgba(15, 23, 42, 0.9)',
         titleColor: '#fff',
@@ -49,47 +46,56 @@ export function TowerChart({ towerData }: TowerChartProps) {
     },
     scales: {
       x: {
-        grid: {
-          color: 'rgba(148, 163, 184, 0.1)',
-        },
-        ticks: {
-          color: '#94a3b8',
-        }
+        grid: { color: 'rgba(148, 163, 184, 0.1)' },
+        ticks: { color: '#94a3b8' }
       },
       y: {
         beginAtZero: true,
-        grid: {
-          color: 'rgba(148, 163, 184, 0.1)',
-        },
-        ticks: {
-          color: '#94a3b8',
-        }
+        grid: { color: 'rgba(148, 163, 184, 0.1)' },
+        ticks: { color: '#94a3b8' }
       }
     }
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="glass rounded-2xl p-6 border border-dark-700/50"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-primary-400" />
-          Consumo por Torre
-        </h3>
-      </div>
+  const styles = {
+    card: {
+      background: 'rgba(30, 41, 59, 0.7)',
+      backdropFilter: 'blur(12px)',
+      borderRadius: '16px',
+      padding: '24px',
+      border: '1px solid rgba(148, 163, 184, 0.1)',
+    },
+    header: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      marginBottom: '20px',
+    },
+    icon: {
+      width: '20px',
+      height: '20px',
+      color: '#a78bfa',
+    },
+    title: {
+      fontSize: '16px',
+      fontWeight: 600,
+      color: '#fff',
+      margin: 0,
+    },
+    chartContainer: {
+      height: '280px',
+    },
+  };
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="h-64"
-      >
+  return (
+    <div style={styles.card}>
+      <div style={styles.header}>
+        <Building2 style={styles.icon} />
+        <h3 style={styles.title}>Consumo por Torre</h3>
+      </div>
+      <div style={styles.chartContainer}>
         <Bar data={chartData} options={options} />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

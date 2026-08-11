@@ -1,9 +1,6 @@
-import { motion, AnimatePresence } from 'motion/react';
-import { Filter, Download, Search } from 'lucide-react';
+import { Search, Download, Filter } from 'lucide-react';
 import type { WaterMeterData, FilterConfig, TowerData } from '../types';
 import { exportAlerts } from '../utils/export';
-import { Button } from './Button';
-import clsx from 'clsx';
 
 interface DataTableProps {
   data: WaterMeterData[];
@@ -28,72 +25,216 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
     exportAlerts(alerts, 'alertas_hidrometros');
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="glass rounded-2xl border border-dark-700/50 overflow-hidden"
-    >
-      {/* Header */}
-      <div className="p-6 border-b border-dark-700/50">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <Filter className="w-5 h-5 text-primary-400" />
-            Dados Detalhados
-          </h3>
+  const styles = {
+    card: {
+      background: 'rgba(30, 41, 59, 0.7)',
+      backdropFilter: 'blur(12px)',
+      borderRadius: '16px',
+      border: '1px solid rgba(148, 163, 184, 0.1)',
+      overflow: 'hidden',
+    },
+    header: {
+      padding: '24px',
+      borderBottom: '1px solid rgba(148, 163, 184, 0.1)',
+    },
+    headerTop: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between' as const,
+      marginBottom: '16px',
+    },
+    headerLeft: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+    },
+    icon: {
+      width: '20px',
+      height: '20px',
+      color: '#a78bfa',
+    },
+    title: {
+      fontSize: '16px',
+      fontWeight: 600,
+      color: '#fff',
+      margin: 0,
+    },
+    exportBtn: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '8px 16px',
+      borderRadius: '10px',
+      border: '1px solid rgba(71, 85, 105, 0.5)',
+      background: 'rgba(51, 65, 85, 0.5)',
+      color: '#fff',
+      fontSize: '13px',
+      fontWeight: 500,
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+    },
+    tabs: {
+      display: 'flex',
+      gap: '8px',
+      flexWrap: 'wrap' as const,
+      marginBottom: '16px',
+    },
+    tab: (isActive: boolean) => ({
+      padding: '8px 16px',
+      borderRadius: '10px',
+      fontSize: '13px',
+      fontWeight: 500,
+      border: isActive ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid transparent',
+      background: isActive ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+      color: isActive ? '#a78bfa' : '#94a3b8',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+    }),
+    filters: {
+      display: 'flex',
+      gap: '12px',
+      flexWrap: 'wrap' as const,
+    },
+    searchWrapper: {
+      position: 'relative' as const,
+      flex: 1,
+      minWidth: '200px',
+    },
+    searchIcon: {
+      position: 'absolute' as const,
+      left: '12px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: '16px',
+      height: '16px',
+      color: '#94a3b8',
+    },
+    searchInput: {
+      width: '100%',
+      padding: '10px 12px 10px 36px',
+      borderRadius: '10px',
+      background: 'rgba(30, 41, 59, 0.5)',
+      border: '1px solid rgba(71, 85, 105, 0.5)',
+      color: '#fff',
+      fontSize: '13px',
+      outline: 'none',
+    },
+    select: {
+      padding: '10px 12px',
+      borderRadius: '10px',
+      background: 'rgba(30, 41, 59, 0.5)',
+      border: '1px solid rgba(71, 85, 105, 0.5)',
+      color: '#fff',
+      fontSize: '13px',
+      outline: 'none',
+    },
+    tableWrapper: {
+      overflowX: 'auto' as const,
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse' as const,
+    },
+    th: {
+      textAlign: 'left' as const,
+      padding: '14px 20px',
+      fontSize: '12px',
+      fontWeight: 600,
+      color: '#94a3b8',
+      borderBottom: '1px solid rgba(148, 163, 184, 0.1)',
+      background: 'rgba(30, 41, 59, 0.3)',
+    },
+    td: {
+      padding: '14px 20px',
+      fontSize: '14px',
+      borderBottom: '1px solid rgba(148, 163, 184, 0.05)',
+    },
+    tr: {
+      transition: 'background 0.2s',
+    },
+    statusBadge: (statusClass: string) => ({
+      display: 'inline-block',
+      padding: '4px 10px',
+      borderRadius: '20px',
+      fontSize: '11px',
+      fontWeight: 600,
+      background: statusClass === 'negative' 
+        ? 'rgba(239, 68, 68, 0.2)' 
+        : statusClass === 'high' 
+          ? 'rgba(245, 158, 11, 0.2)' 
+          : 'rgba(16, 185, 129, 0.2)',
+      color: statusClass === 'negative' 
+        ? '#f87171' 
+        : statusClass === 'high' 
+          ? '#fbbf24' 
+          : '#34d399',
+    }),
+    consumptionValue: (consumo: number) => ({
+      fontWeight: 600,
+      color: consumo < 0 ? '#f87171' : consumo > 20 ? '#fbbf24' : '#fff',
+    }),
+    emptyState: {
+      padding: '48px 0',
+      textAlign: 'center' as const,
+      color: '#94a3b8',
+    },
+  };
 
-          <Button
-            variant="secondary"
-            size="sm"
-            icon={Download}
+  return (
+    <div style={styles.card}>
+      <div style={styles.header}>
+        <div style={styles.headerTop}>
+          <div style={styles.headerLeft}>
+            <Filter style={styles.icon} />
+            <h3 style={styles.title}>Dados Detalhados</h3>
+          </div>
+          <button 
+            style={styles.exportBtn}
             onClick={handleExportAlerts}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(71, 85, 105, 0.8)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(51, 65, 85, 0.5)';
+            }}
           >
+            <Download size={14} />
             Exportar Alertas
-          </Button>
+          </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div style={styles.tabs}>
           {[
             { id: 'all', label: 'Todos' },
             { id: 'negative', label: '❌ Negativos' },
             { id: 'high', label: '⚠️ Alto Consumo' },
             { id: 'ok', label: '✅ OK' },
           ].map((tab) => (
-            <motion.button
+            <button
               key={tab.id}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
               onClick={() => onFilterChange({ status: tab.id as FilterConfig['status'] })}
-              className={clsx(
-                'px-4 py-2 rounded-xl text-sm font-medium transition-all',
-                filter.status === tab.id
-                  ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-700/50'
-              )}
+              style={styles.tab(filter.status === tab.id)}
             >
               {tab.label}
-            </motion.button>
+            </button>
           ))}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mt-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
+        <div style={styles.filters}>
+          <div style={styles.searchWrapper}>
+            <Search style={styles.searchIcon} />
             <input
               type="text"
               placeholder="Filtrar por apartamento..."
               value={filter.apartment}
               onChange={(e) => onFilterChange({ apartment: e.target.value })}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-dark-800/50 border border-dark-600 text-white placeholder-dark-400 focus:outline-none focus:border-primary-500/50 transition-all"
+              style={styles.searchInput}
             />
           </div>
           <select
             value={filter.tower}
             onChange={(e) => onFilterChange({ tower: e.target.value })}
-            className="px-4 py-2.5 rounded-xl bg-dark-800/50 border border-dark-600 text-white focus:outline-none focus:border-primary-500/50 transition-all"
+            style={styles.select}
           >
             <option value="">Todas as Torres</option>
             {towers.map(t => (
@@ -103,80 +244,63 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div style={styles.tableWrapper}>
+        <table style={styles.table}>
           <thead>
-            <tr className="border-b border-dark-700/50">
-              <th className="text-left px-6 py-4 text-sm font-semibold text-dark-400">Torre</th>
-              <th className="text-left px-6 py-4 text-sm font-semibold text-dark-400">Ap</th>
-              <th className="text-left px-6 py-4 text-sm font-semibold text-dark-400">Índice Anterior</th>
-              <th className="text-left px-6 py-4 text-sm font-semibold text-dark-400">Índice Atual</th>
-              <th className="text-left px-6 py-4 text-sm font-semibold text-dark-400">Consumo (m³)</th>
-              <th className="text-left px-6 py-4 text-sm font-semibold text-dark-400">Status</th>
+            <tr>
+              <th style={styles.th}>Torre</th>
+              <th style={styles.th}>Ap</th>
+              <th style={styles.th}>Índice Anterior</th>
+              <th style={styles.th}>Índice Atual</th>
+              <th style={styles.th}>Consumo (m³)</th>
+              <th style={styles.th}>Status</th>
             </tr>
           </thead>
           <tbody>
-            <AnimatePresence>
-              {data.map((item, index) => (
-                <motion.tr
-                  key={`${item.torre}-${item.ap}-${index}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ delay: index * 0.02 }}
-                  whileHover={{ backgroundColor: 'rgba(139, 92, 246, 0.05)' }}
-                  className="border-b border-dark-700/30 cursor-pointer"
-                >
-                  <td className="px-6 py-4">
-                    <span className="font-medium text-white">{item.torre}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-dark-300">{item.ap}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-dark-300">{item.indiceAnterior.toFixed(2)}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-dark-300">{item.indiceAtual.toFixed(2)}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={clsx(
-                      'font-semibold',
-                      item.consumo < 0 && 'text-red-400',
-                      item.consumo > 20 && 'text-amber-400',
-                      item.consumo >= 0 && item.consumo <= 20 && 'text-white'
-                    )}>
-                      {item.consumo.toFixed(2)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={clsx(
-                      'px-3 py-1 rounded-full text-xs font-semibold',
-                      item.statusClass === 'negative' && 'bg-red-500/20 text-red-400',
-                      item.statusClass === 'high' && 'bg-amber-500/20 text-amber-400',
-                      item.statusClass === 'ok' && 'bg-emerald-500/20 text-emerald-400'
-                    )}>
-                      {item.status}
-                    </span>
-                  </td>
-                </motion.tr>
-              ))}
-            </AnimatePresence>
+            {data.map((item, index) => (
+              <tr
+                key={`${item.torre}-${item.ap}-${index}`}
+                style={styles.tr}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(139, 92, 246, 0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <td style={styles.td}>
+                  <span style={{ color: '#fff', fontWeight: 500 }}>{item.torre}</span>
+                </td>
+                <td style={styles.td}>
+                  <span style={{ color: '#cbd5e1' }}>{item.ap}</span>
+                </td>
+                <td style={styles.td}>
+                  <span style={{ color: '#cbd5e1' }}>{item.indiceAnterior.toFixed(2)}</span>
+                </td>
+                <td style={styles.td}>
+                  <span style={{ color: '#cbd5e1' }}>{item.indiceAtual.toFixed(2)}</span>
+                </td>
+                <td style={styles.td}>
+                  <span style={styles.consumptionValue(item.consumo)}>
+                    {item.consumo.toFixed(2)}
+                  </span>
+                </td>
+                <td style={styles.td}>
+                  <span style={styles.statusBadge(item.statusClass)}>
+                    {item.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-      {/* Empty state */}
       {data.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="py-12 text-center"
-        >
-          <p className="text-dark-400">Nenhum dado encontrado</p>
-        </motion.div>
+        <div style={styles.emptyState}>
+          Nenhum dado encontrado
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }

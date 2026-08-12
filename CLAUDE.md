@@ -12,11 +12,19 @@ Sistema de análise de consumo de água para condomínios com 1444+ apartamentos
 3. **Siga convenções existentes** - Mantenha consistência com o código já escrito
 4. **Teste sempre** - Execute testes após cada mudança significativa
 5. **Documente mudanças** - Atualize README e comments quando necessário
+6. **REVER CÓDIGO ANTES DE IMPLEMENTAR** - Antes de qualquer mudança, leia os arquivos relacionados para identificar bugs, falhas ou código morto. Nunca implemente sem antes verificar o estado atual do código.
 
 ### Fluxo de Trabalho
 ```
-1. Entender tarefa → 2. Carregar skill → 3. Perguntar se necessário → 4. Implementar → 5. Testar → 6. Documentar
+1. Entender tarefa → 2. Rever código relacionado → 3. Carregar skill → 4. Perguntar se necessário → 5. Implementar → 6. Testar → 7. Documentar
 ```
+
+### Checklist de Revisão (antes de cada implementação)
+- [ ] Li os arquivos que vou modificar?
+- [ ] Verifiquei se há bugs ou falhas no código atual?
+- [ ] Identifiquei código morto ou não utilizado?
+- [ ] Confirmei que não vou quebrar funcionalidade existente?
+- [ ] Rodei `npm run lint` e `npm run test` antes de começar?
 
 ## 🏗️ Estrutura de Software
 
@@ -191,3 +199,25 @@ interface FilterConfig {
 - Compatível com as 3 abas da planilha original
 - Dashboard responsivo para desktop
 - Configurações salvas automaticamente no localStorage
+
+## 🚀 Features Sugeridas (Backlog)
+
+### Prioridade Alta
+- [ ] **Comparativo entre períodos** - Carregar 2+ planilhas e comparar consumo entre meses
+- [ ] **Gráfico de evolução temporal** - Linha temporal de consumo por torre
+- [ ] **Detecção de anomalias avançada** - Desvio padrão, outliers estatísticos
+- [ ] **Relatório PDF** - Gerar relatório formatado para impressão
+
+### Prioridade Média
+- [ ] **Modo escuro/claro** - Toggle de tema
+- [ ] **Notificações no navegador** - Alertar quando novos dados são carregados
+- [ ] **Filtros salvos** - Salvar combinações de filtros favoritas
+- [ ] **Compartilhar link** - Gerar link com filtros aplicados (URL params)
+- [ ] **Colapsar torres no gráfico** - Expandir/colapsar dados por torre
+
+### Prioridade Baixa
+- [ ] **Suporte a CSV** - Importar dados de arquivos CSV também
+- [ ] **Múltiplos idiomas** - PT/EN
+- [ ] **Atalhos de teclado** - Navegar com teclado
+- [ ] **Dicas de uso** - Tooltips explicativos
+- [ ] **Modo presentation** - Tela cheia para apresentações

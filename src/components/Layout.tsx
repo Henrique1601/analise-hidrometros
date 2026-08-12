@@ -1,11 +1,8 @@
 import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export function Layout({ children }: LayoutProps) {
+export function Layout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
@@ -23,7 +20,7 @@ export function Layout({ children }: LayoutProps) {
           transition: 'margin-left 0.3s ease',
         }}
       >
-        {children}
+        <Outlet />
       </main>
     </div>
   );

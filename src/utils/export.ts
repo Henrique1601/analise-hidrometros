@@ -3,12 +3,12 @@ import type { WaterMeterData, Alert } from '../types';
 export function exportToCSV(data: WaterMeterData[], filename: string): void {
   const headers = ['Torre', 'Ap', 'Índice Anterior', 'Índice Atual', 'Consumo (m³)', 'Status'];
   const rows = data.map(item => [
-    item.torre,
-    item.ap,
+    escapeCSV(item.torre),
+    escapeCSV(item.ap),
     item.indiceAnterior.toFixed(2),
     item.indiceAtual.toFixed(2),
     item.consumo.toFixed(2),
-    item.status
+    escapeCSV(item.status)
   ]);
 
   const csvContent = [
@@ -28,10 +28,10 @@ export function exportAlerts(alerts: Alert[], filename: string): void {
   const headers = ['Tipo', 'Torre', 'Apartamento', 'Consumo (m³)', 'Mensagem'];
   const rows = alerts.map(alert => [
     alert.type === 'negative' ? 'NEGATIVO' : 'ALTO',
-    alert.tower,
-    alert.ap,
+    escapeCSV(alert.tower),
+    escapeCSV(alert.ap),
     alert.value.toFixed(2),
-    alert.message
+    escapeCSV(alert.message)
   ]);
 
   const csvContent = [
@@ -42,12 +42,21 @@ export function exportAlerts(alerts: Alert[], filename: string): void {
   downloadCSV(csvContent, filename);
 }
 
+function escapeCSV(value: string): string {
+  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
 function downloadCSV(content: string, filename: string): void {
   const blob = new Blob(['\ufeff' + content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
+  link.href = url;
   link.download = `${filename}_${new Date().toISOString().slice(0, 10)}.csv`;
   link.click();
+  URL.revokeObjectURL(url);
 }
 
 export function formatConsumption(value: number): string {

@@ -1,8 +1,9 @@
 import type { WaterMeterData, AnalysisConfig, AnalysisResult, Alert, TowerData } from '../types';
+import { ANALYSIS_DEFAULTS, STATUS_LABELS } from '../constants';
 
 export function analyzeConsumption(
   data: WaterMeterData[],
-  config: AnalysisConfig = { highLimit: 20, lowLimit: 1 }
+  config: AnalysisConfig = { highLimit: ANALYSIS_DEFAULTS.HIGH_LIMIT, lowLimit: ANALYSIS_DEFAULTS.LOW_LIMIT }
 ): AnalysisResult {
   const { highLimit, lowLimit } = config;
   
@@ -79,18 +80,18 @@ export function updateItemStatus(
   const consumo = item.consumo;
 
   let statusClass: WaterMeterData['statusClass'] = 'ok';
-  let status = 'OK';
+  let status: string = STATUS_LABELS.OK;
 
   if (consumo < 0) {
     statusClass = 'negative';
-    status = 'NEGATIVO';
+    status = STATUS_LABELS.NEGATIVE;
   } else if (consumo > highLimit) {
     statusClass = 'high';
-    status = 'ALTO';
+    status = STATUS_LABELS.HIGH;
   } else if (consumo === 0) {
-    status = 'ZERO';
+    status = STATUS_LABELS.ZERO;
   } else if (consumo < lowLimit) {
-    status = 'BAIXO';
+    status = STATUS_LABELS.LOW;
   }
 
   return { ...item, statusClass, status };

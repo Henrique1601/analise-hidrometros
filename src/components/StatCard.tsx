@@ -5,7 +5,6 @@ interface StatCardProps {
   value: string | number;
   icon: LucideIcon;
   color?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
-  delay?: number;
 }
 
 const colorMap = {

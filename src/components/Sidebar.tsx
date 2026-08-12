@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Upload, 
@@ -17,17 +17,15 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', id: 'dashboard' },
-  { icon: Upload, label: 'Carregar Planilha', id: 'upload' },
-  { icon: BarChart3, label: 'Análise', id: 'analysis' },
-  { icon: AlertTriangle, label: 'Alertas', id: 'alerts' },
-  { icon: FileSpreadsheet, label: 'Relatórios', id: 'reports' },
-  { icon: Settings, label: 'Configurações', id: 'settings' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+  { icon: Upload, label: 'Carregar Planilha', path: '/upload' },
+  { icon: BarChart3, label: 'Análise', path: '/analysis' },
+  { icon: AlertTriangle, label: 'Alertas', path: '/alerts' },
+  { icon: FileSpreadsheet, label: 'Relatórios', path: '/reports' },
+  { icon: Settings, label: 'Configurações', path: '/settings' },
 ];
 
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
-  const [activeItem, setActiveItem] = useState('dashboard');
-
   const styles = {
     sidebar: {
       position: 'fixed' as const,
@@ -95,6 +93,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       cursor: 'pointer',
       transition: 'all 0.2s',
       justifyContent: isCollapsed ? 'center' : 'flex-start',
+      textDecoration: 'none',
       background: isActive 
         ? 'linear-gradient(90deg, rgba(139,92,246,0.2), rgba(59,130,246,0.2))' 
         : 'transparent',
@@ -132,7 +131,6 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
   return (
     <aside style={styles.sidebar}>
-      {/* Logo */}
       <div style={styles.logo}>
         <div style={styles.logoIcon}>
           <Droplets className="w-6 h-6 text-white" />
@@ -145,38 +143,26 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         )}
       </div>
 
-      {/* Menu Items */}
       <nav style={styles.nav}>
-        {menuItems.map((item) => {
-          const isActive = activeItem === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveItem(item.id)}
-              style={styles.menuItem(isActive)}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = 'rgba(51, 65, 85, 0.5)';
-                  e.currentTarget.style.color = '#fff';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = '#94a3b8';
-                }
-              }}
-            >
-              <item.icon style={styles.menuIcon(isActive)} />
-              {!isCollapsed && (
-                <span style={styles.menuLabel}>{item.label}</span>
-              )}
-            </button>
-          );
-        })}
+        {menuItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            end={item.path === '/'}
+            style={({ isActive }) => styles.menuItem(isActive)}
+          >
+            {({ isActive }) => (
+              <>
+                <item.icon style={styles.menuIcon(isActive)} />
+                {!isCollapsed && (
+                  <span style={styles.menuLabel}>{item.label}</span>
+                )}
+              </>
+            )}
+          </NavLink>
+        ))}
       </nav>
 
-      {/* Toggle Button */}
       <div style={styles.footer}>
         <button
           onClick={onToggle}

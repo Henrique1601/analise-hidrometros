@@ -18,6 +18,81 @@ Sistema de análise de consumo de água para condomínios com 1444+ apartamentos
 1. Entender tarefa → 2. Carregar skill → 3. Perguntar se necessário → 4. Implementar → 5. Testar → 6. Documentar
 ```
 
+## 🏗️ Estrutura de Software
+
+### Princípios de Organização
+- **Separação por responsabilidade** - Cada arquivo tem UMA responsabilidade clara
+- **Separação por pastas** - Código agrupado por domínio funcional
+- **Nomes descritivos** - Arquivos e funções com nomes que explicam o que fazem
+- **Barreiras claras** - Componentes, hooks, contexts, utils e types nunca se misturam
+
+### Estrutura de Pastas
+```
+src/
+├── components/          # Componentes React (UI reutilizável)
+│   ├── Layout.tsx       # Layout com sidebar + Outlet
+│   ├── Sidebar.tsx      # Navegação lateral (NavLink)
+│   ├── FileUpload.tsx   # Upload de arquivos
+│   ├── StatCard.tsx     # Card de estatísticas reutilizável
+│   ├── ConsumptionChart.tsx  # Gráfico de consumo
+│   ├── TowerChart.tsx   # Gráfico por torre
+│   ├── AlertsList.tsx   # Lista de alertas
+│   ├── DataTable.tsx    # Tabela com paginação e ordenação
+│   └── Button.tsx       # Botão reutilizável
+├── pages/               # Páginas (rotas)
+│   ├── DashboardPage.tsx    # Visão geral com stats
+│   ├── UploadPage.tsx       # Upload + configurações
+│   ├── AnalysisPage.tsx     # Gráficos
+│   ├── AlertsPage.tsx       # Lista de alertas
+│   ├── ReportsPage.tsx      # Tabela detalhada
+│   └── SettingsPage.tsx     # Configurações
+├── contexts/            # React Context (estado compartilhado)
+│   └── AppContext.tsx    # Estado global da aplicação
+├── hooks/               # Custom hooks
+│   └── useExcelParser.ts    # Parser de Excel
+├── types/               # Tipos TypeScript (contratos)
+│   └── index.ts
+├── constants/           # Constantes compartilhadas
+│   └── index.ts
+├── utils/               # Funções puras (sem estado)
+│   ├── analysis.ts
+│   └── export.ts
+├── __tests__/           # Testes
+│   ├── analysis.test.ts
+│   └── export.test.ts
+├── App.tsx              # Router + Providers
+└── main.tsx             # Ponto de entrada
+```
+
+### Regras de Separação
+1. **Components** → Só UI reutilizável. Recebem props, renderizam JSX.
+2. **Pages** → Uma por rota. Usa context para acessar estado.
+3. **Contexts** → Estado compartilhado entre páginas.
+4. **Hooks** → Lógica reutilizável (parser, etc).
+5. **Utils** → Funções puras. Input → Output.
+6. **Types** → Contratos. Definem a forma dos dados.
+7. **Constants** → Valores fixos.
+
+### Rotas
+| Rota | Página | Descrição |
+|------|--------|-----------|
+| `/` | DashboardPage | Visão geral com cards de estatísticas |
+| `/upload` | UploadPage | Upload de planilha + configurações |
+| `/analysis` | AnalysisPage | Gráficos de consumo e torre |
+| `/alerts` | AlertsPage | Lista de alertas detectados |
+| `/reports` | ReportsPage | Tabela detalhada com filtros |
+| `/settings` | SettingsPage | Configurações e zona de perigo |
+
+### Quando criar um novo arquivo
+- **Nova página** → `src/pages/NomeDaPagina.tsx` + adicionar rota em `App.tsx`
+- **Novo componente** → `src/components/NomeDoComponente.tsx`
+- **Novo hook** → `src/hooks/useNomeDoHook.ts`
+- **Novo context** → `src/contexts/NomeDoContext.tsx`
+- **Nova função util** → `src/utils/nomeDaFuncao.ts`
+- **Novo tipo** → Adicionar em `src/types/index.ts`
+- **Nova constante** → Adicionar em `src/constants/index.ts`
+- **Novo teste** → `src/__tests__/nomeDoModulo.test.ts`
+
 ## 🛠️ Skills Disponíveis
 
 ### Para Implementação
@@ -28,7 +103,7 @@ Sistema de análise de consumo de água para condomínios com 1444+ apartamentos
 ### Para Manutenção
 - **debug** - Encontrar e corrigir bugs
 - **code-review** - Revisão de código e boas práticas
-- **performance** - Otimização de performance (vercel-react-best-practices)
+- **performance** - Otimização de performance
 
 ### Para Documentação
 - **documentation** - Criar e manter documentação
@@ -37,46 +112,6 @@ Sistema de análise de consumo de água para condomínios com 1444+ apartamentos
 ### Para o Projeto
 - **data-visualization** - Gráficos e visualização de dados
 - **xlsx** - Manipulação de planilhas Excel
-
-## 📁 Estrutura do Projeto
-
-```
-analise-hidrometros-v2/
-├── CLAUDE.md                    # Este arquivo
-├── README.md                    # Documentação do projeto
-├── package.json                 # Dependências
-├── vite.config.ts               # Configuração Vite
-├── tsconfig.json                # Configuração TypeScript
-├── .claude/
-│   └── skills/                  # Skills customizadas
-│       ├── hidrometros-analyze.md
-│       └── hidrometros-report.md
-├── src/
-│   ├── components/              # Componentes React
-│   │   ├── Dashboard.tsx
-│   │   ├── FileUpload.tsx
-│   │   ├── StatsCards.tsx
-│   │   ├── ConsumptionChart.tsx
-│   │   ├── TowerChart.tsx
-│   │   ├── AlertsList.tsx
-│   │   └── DataTable.tsx
-│   ├── hooks/                   # Custom hooks
-│   │   ├── useExcelParser.ts
-│   │   └── useAnalysis.ts
-│   ├── types/                   # Tipos TypeScript
-│   │   └── index.ts
-│   ├── utils/                   # Utilitários
-│   │   ├── analysis.ts
-│   │   └── export.ts
-│   ├── __tests__/               # Testes
-│   │   ├── analysis.test.ts
-│   │   └── components.test.tsx
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-└── public/
-    └── favicon.ico
-```
 
 ## 🔧 Comandos Úteis
 
@@ -116,33 +151,38 @@ interface AnalysisResult {
   totalApartments: number;
   negativeCount: number;
   highCount: number;
+  zeroCount: number;
+  lowCount: number;
+  okCount: number;
   averageConsumption: number;
+  totalConsumption: number;
   alerts: Alert[];
   towerData: TowerData;
 }
 
-interface Alert {
-  type: 'negative' | 'high';
-  message: string;
+interface FilterConfig {
   tower: string;
-  ap: string;
-  value: number;
+  apartment: string;
+  status: 'all' | 'negative' | 'high' | 'zero' | 'low' | 'ok';
+  consumptionMin: string;
+  consumptionMax: string;
 }
 ```
 
 ## ⚙️ Configurações Padrão
 
-- **Limite Alto Consumo**: 20m³ (configurável pelo usuário)
-- **Limite Baixo Consumo**: 1m³ (configurável pelo usuário)
+- **Limite Alto Consumo**: 20m³ (configurável, salvo no localStorage)
+- **Limite Baixo Consumo**: 1m³ (configurável, salvo no localStorage)
 - **Formato de Entrada**: Excel (.xlsx)
 - **Formato de Saída**: Dashboard HTML + CSV export
+- **Paginação**: 25 itens por padrão (configurável)
 
 ## 🚨 Regras de Negócio
 
 1. **Consumo Negativo**: Índice Atual < Índice Anterior → Possível erro de leitura
-2. **Alto Consumo**: Consumo > 20m³ → Possível vazamento ou erro
+2. **Alto Consumo**: Consumo > limite configurável → Possível vazamento ou erro
 3. **Consumo Zero**: Consumo = 0 → Apartamento sem medição
-4. **Consumo Baixo**: Consumo < 1m³ → Possível medição incorreta
+4. **Consumo Baixo**: Consumo < limite configurável → Possível medição incorreta
 
 ## 📝 Notas Importantes
 
@@ -150,3 +190,4 @@ interface Alert {
 - Dados ficam apenas no navegador (não envia para servidor)
 - Compatível com as 3 abas da planilha original
 - Dashboard responsivo para desktop
+- Configurações salvas automaticamente no localStorage

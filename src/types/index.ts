@@ -53,5 +53,7 @@ export interface ChartData {
 export interface FilterConfig {
   tower: string;
   apartment: string;
-  status: 'all' | 'negative' | 'high' | 'ok';
+  status: 'all' | 'negative' | 'high' | 'zero' | 'low' | 'ok';
+  consumptionMin: string;
+  consumptionMax: string;
 }

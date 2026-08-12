@@ -1,16 +1,63 @@
-import { Search, Download, Filter } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Search, Download, Filter, ChevronUp, ChevronDown, ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { WaterMeterData, FilterConfig, TowerData } from '../types';
-import { exportAlerts } from '../utils/export';
+import { exportAlerts, exportToCSV } from '../utils/export';
+import { PAGINATION } from '../constants';
 
 interface DataTableProps {
   data: WaterMeterData[];
   filter: FilterConfig;
   onFilterChange: (filter: Partial<FilterConfig>) => void;
   towerData: TowerData;
+  highLimit: number;
+  lowLimit: number;
 }
 
-export function DataTable({ data, filter, onFilterChange, towerData }: DataTableProps) {
+type SortField = 'torre' | 'ap' | 'indiceAnterior' | 'indiceAtual' | 'consumo' | 'status';
+type SortDirection = 'asc' | 'desc';
+
+export function DataTable({ data, filter, onFilterChange, towerData, highLimit, lowLimit }: DataTableProps) {
   const towers = Object.keys(towerData).sort();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(PAGINATION.DEFAULT_PAGE_SIZE);
+  const [sortField, setSortField] = useState<SortField>('torre');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  const sortedData = useMemo(() => {
+    const sorted = [...data].sort((a, b) => {
+      let aVal: string | number;
+      let bVal: string | number;
+
+      switch (sortField) {
+        case 'torre': aVal = a.torre; bVal = b.torre; break;
+        case 'ap': aVal = a.ap; bVal = b.ap; break;
+        case 'indiceAnterior': aVal = a.indiceAnterior; bVal = b.indiceAnterior; break;
+        case 'indiceAtual': aVal = a.indiceAtual; bVal = b.indiceAtual; break;
+        case 'consumo': aVal = a.consumo; bVal = b.consumo; break;
+        case 'status': aVal = a.status; bVal = b.status; break;
+        default: return 0;
+      }
+
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+      return sortDirection === 'asc' ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
+    });
+    return sorted;
+  }, [data, sortField, sortDirection]);
+
+  const totalPages = Math.ceil(sortedData.length / pageSize);
+  const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+    setCurrentPage(1);
+  };
 
   const handleExportAlerts = () => {
     const alerts = data
@@ -23,6 +70,17 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
         value: item.consumo
       }));
     exportAlerts(alerts, 'alertas_hidrometros');
+  };
+
+  const handleExportAll = () => {
+    exportToCSV(data, 'dados_completos_hidrometros');
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ChevronUp size={14} style={{ opacity: 0.3 }} />;
+    return sortDirection === 'asc' 
+      ? <ChevronUp size={14} style={{ color: '#a78bfa' }} />
+      : <ChevronDown size={14} style={{ color: '#a78bfa' }} />;
   };
 
   const styles = {
@@ -143,6 +201,9 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
       color: '#94a3b8',
       borderBottom: '1px solid rgba(148, 163, 184, 0.1)',
       background: 'rgba(30, 41, 59, 0.3)',
+      cursor: 'pointer',
+      userSelect: 'none' as const,
+      whiteSpace: 'nowrap' as const,
     },
     td: {
       padding: '14px 20px',
@@ -152,31 +213,82 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
     tr: {
       transition: 'background 0.2s',
     },
-    statusBadge: (statusClass: string) => ({
-      display: 'inline-block',
-      padding: '4px 10px',
-      borderRadius: '20px',
-      fontSize: '11px',
-      fontWeight: 600,
-      background: statusClass === 'negative' 
-        ? 'rgba(239, 68, 68, 0.2)' 
-        : statusClass === 'high' 
-          ? 'rgba(245, 158, 11, 0.2)' 
-          : 'rgba(16, 185, 129, 0.2)',
-      color: statusClass === 'negative' 
-        ? '#f87171' 
-        : statusClass === 'high' 
-          ? '#fbbf24' 
-          : '#34d399',
-    }),
+    statusBadge: (statusClass: string, status: string) => {
+      let bg: string;
+      let color: string;
+
+      if (statusClass === 'negative') {
+        bg = 'rgba(239, 68, 68, 0.2)';
+        color = '#f87171';
+      } else if (statusClass === 'high') {
+        bg = 'rgba(245, 158, 11, 0.2)';
+        color = '#fbbf24';
+      } else if (status === 'ZERO') {
+        bg = 'rgba(148, 163, 184, 0.2)';
+        color = '#94a3b8';
+      } else if (status === 'BAIXO') {
+        bg = 'rgba(253, 230, 138, 0.2)';
+        color = '#fde68a';
+      } else {
+        bg = 'rgba(16, 185, 129, 0.2)';
+        color = '#34d399';
+      }
+
+      return { display: 'inline-block', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, background: bg, color };
+    },
     consumptionValue: (consumo: number) => ({
       fontWeight: 600,
-      color: consumo < 0 ? '#f87171' : consumo > 20 ? '#fbbf24' : '#fff',
+      color: consumo < 0 ? '#f87171' : consumo > highLimit ? '#fbbf24' : consumo < lowLimit && consumo > 0 ? '#fde68a' : '#fff',
     }),
     emptyState: {
       padding: '48px 0',
       textAlign: 'center' as const,
       color: '#94a3b8',
+    },
+    pagination: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between' as const,
+      padding: '16px 24px',
+      borderTop: '1px solid rgba(148, 163, 184, 0.1)',
+    },
+    paginationInfo: {
+      fontSize: '13px',
+      color: '#94a3b8',
+    },
+    paginationControls: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+    },
+    pageBtn: (isActive: boolean) => ({
+      padding: '6px 12px',
+      borderRadius: '8px',
+      border: 'none',
+      fontSize: '13px',
+      fontWeight: 500,
+      cursor: 'pointer',
+      background: isActive ? 'rgba(139, 92, 246, 0.3)' : 'transparent',
+      color: isActive ? '#a78bfa' : '#94a3b8',
+      transition: 'all 0.2s',
+    }),
+    navBtn: {
+      padding: '6px 8px',
+      borderRadius: '8px',
+      border: 'none',
+      background: 'transparent',
+      color: '#94a3b8',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+    },
+    pageSizeSelect: {
+      padding: '6px 12px',
+      borderRadius: '8px',
+      background: 'rgba(30, 41, 59, 0.5)',
+      border: '1px solid rgba(71, 85, 105, 0.5)',
+      color: '#fff',
+      fontSize: '13px',
+      outline: 'none',
     },
   };
 
@@ -187,20 +299,28 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
           <div style={styles.headerLeft}>
             <Filter style={styles.icon} />
             <h3 style={styles.title}>Dados Detalhados</h3>
+            <span style={{ fontSize: '13px', color: '#94a3b8' }}>({data.length} registros)</span>
           </div>
-          <button 
-            style={styles.exportBtn}
-            onClick={handleExportAlerts}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(71, 85, 105, 0.8)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(51, 65, 85, 0.5)';
-            }}
-          >
-            <Download size={14} />
-            Exportar Alertas
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              style={styles.exportBtn}
+              onClick={handleExportAll}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(71, 85, 105, 0.8)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(51, 65, 85, 0.5)'; }}
+            >
+              <Download size={14} />
+              Exportar Todos
+            </button>
+            <button 
+              style={styles.exportBtn}
+              onClick={handleExportAlerts}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(71, 85, 105, 0.8)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(51, 65, 85, 0.5)'; }}
+            >
+              <Download size={14} />
+              Exportar Alertas
+            </button>
+          </div>
         </div>
 
         <div style={styles.tabs}>
@@ -208,11 +328,13 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
             { id: 'all', label: 'Todos' },
             { id: 'negative', label: '❌ Negativos' },
             { id: 'high', label: '⚠️ Alto Consumo' },
+            { id: 'zero', label: '— Zero' },
+            { id: 'low', label: '↘ Baixo' },
             { id: 'ok', label: '✅ OK' },
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => onFilterChange({ status: tab.id as FilterConfig['status'] })}
+              onClick={() => { onFilterChange({ status: tab.id as FilterConfig['status'] }); setCurrentPage(1); }}
               style={styles.tab(filter.status === tab.id)}
             >
               {tab.label}
@@ -227,13 +349,13 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
               type="text"
               placeholder="Filtrar por apartamento..."
               value={filter.apartment}
-              onChange={(e) => onFilterChange({ apartment: e.target.value })}
+              onChange={(e) => { onFilterChange({ apartment: e.target.value }); setCurrentPage(1); }}
               style={styles.searchInput}
             />
           </div>
           <select
             value={filter.tower}
-            onChange={(e) => onFilterChange({ tower: e.target.value })}
+            onChange={(e) => { onFilterChange({ tower: e.target.value }); setCurrentPage(1); }}
             style={styles.select}
           >
             <option value="">Todas as Torres</option>
@@ -241,6 +363,20 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
               <option key={t} value={t}>{t}</option>
             ))}
           </select>
+          <input
+            type="number"
+            placeholder="Consumo mín (m³)"
+            value={filter.consumptionMin}
+            onChange={(e) => { onFilterChange({ consumptionMin: e.target.value }); setCurrentPage(1); }}
+            style={{ ...styles.searchInput, minWidth: '140px', paddingLeft: '12px' }}
+          />
+          <input
+            type="number"
+            placeholder="Consumo máx (m³)"
+            value={filter.consumptionMax}
+            onChange={(e) => { onFilterChange({ consumptionMax: e.target.value }); setCurrentPage(1); }}
+            style={{ ...styles.searchInput, minWidth: '140px', paddingLeft: '12px' }}
+          />
         </div>
       </div>
 
@@ -248,18 +384,31 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
         <table style={styles.table}>
           <thead>
             <tr>
-              <th style={styles.th}>Torre</th>
-              <th style={styles.th}>Ap</th>
-              <th style={styles.th}>Índice Anterior</th>
-              <th style={styles.th}>Índice Atual</th>
-              <th style={styles.th}>Consumo (m³)</th>
-              <th style={styles.th}>Status</th>
+              {[
+                { field: 'torre' as SortField, label: 'Torre' },
+                { field: 'ap' as SortField, label: 'Ap' },
+                { field: 'indiceAnterior' as SortField, label: 'Índice Anterior' },
+                { field: 'indiceAtual' as SortField, label: 'Índice Atual' },
+                { field: 'consumo' as SortField, label: 'Consumo (m³)' },
+                { field: 'status' as SortField, label: 'Status' },
+              ].map(({ field, label }) => (
+                <th 
+                  key={field} 
+                  style={styles.th}
+                  onClick={() => handleSort(field)}
+                >
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    {label}
+                    <SortIcon field={field} />
+                  </span>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => (
+            {paginatedData.map((item, index) => (
               <tr
-                key={`${item.torre}-${item.ap}-${index}`}
+                key={`${item.torre}-${item.ap}-${(currentPage - 1) * pageSize + index}`}
                 style={styles.tr}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = 'rgba(139, 92, 246, 0.05)';
@@ -286,7 +435,7 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
                   </span>
                 </td>
                 <td style={styles.td}>
-                  <span style={styles.statusBadge(item.statusClass)}>
+                  <span style={styles.statusBadge(item.statusClass, item.status)}>
                     {item.status}
                   </span>
                 </td>
@@ -299,6 +448,56 @@ export function DataTable({ data, filter, onFilterChange, towerData }: DataTable
       {data.length === 0 && (
         <div style={styles.emptyState}>
           Nenhum dado encontrado
+        </div>
+      )}
+
+      {data.length > 0 && (
+        <div style={styles.pagination}>
+          <div style={styles.paginationInfo}>
+            Mostrando {((currentPage - 1) * pageSize) + 1} a {Math.min(currentPage * pageSize, data.length)} de {data.length} registros
+          </div>
+          <div style={styles.paginationControls}>
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+              style={styles.pageSizeSelect}
+            >
+              {PAGINATION.PAGE_SIZE_OPTIONS.map(size => (
+                <option key={size} value={size}>{size} / página</option>
+              ))}
+            </select>
+            <button
+              style={styles.navBtn}
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronsLeft size={16} />
+            </button>
+            <button
+              style={styles.navBtn}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span style={{ color: '#fff', fontSize: '13px', padding: '0 8px' }}>
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              style={styles.navBtn}
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight size={16} />
+            </button>
+            <button
+              style={styles.navBtn}
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronsRight size={16} />
+            </button>
+          </div>
         </div>
       )}
     </div>

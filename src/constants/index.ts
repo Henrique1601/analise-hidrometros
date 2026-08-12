@@ -30,3 +30,8 @@ export const CSV = {
   SEPARATOR: ',',
   BOM: '\ufeff',
 } as const;
+
+export const ANOMALY = {
+  Z_SCORE_THRESHOLD: 2,
+  IQR_MULTIPLIER: 1.5,
+} as const;

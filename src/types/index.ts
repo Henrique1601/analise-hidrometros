@@ -57,3 +57,25 @@ export interface FilterConfig {
   consumptionMin: string;
   consumptionMax: string;
 }
+
+export interface PeriodData {
+  id: string;
+  name: string;
+  fileName: string;
+  date: Date;
+  data: WaterMeterData[];
+  result: AnalysisResult;
+}
+
+export interface AnomalyResult {
+  mean: number;
+  stdDev: number;
+  median: number;
+  q1: number;
+  q3: number;
+  iqr: number;
+  lowerBound: number;
+  upperBound: number;
+  outliers: WaterMeterData[];
+  zScores: Map<string, number>;
+}

@@ -8,7 +8,9 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Droplets,
-  FileSpreadsheet
+  FileSpreadsheet,
+  GitCompare,
+  Activity
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -20,6 +22,8 @@ const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
   { icon: Upload, label: 'Carregar Planilha', path: '/upload' },
   { icon: BarChart3, label: 'Análise', path: '/analysis' },
+  { icon: GitCompare, label: 'Comparativo', path: '/comparison' },
+  { icon: Activity, label: 'Anomalias', path: '/anomalies' },
   { icon: AlertTriangle, label: 'Alertas', path: '/alerts' },
   { icon: FileSpreadsheet, label: 'Relatórios', path: '/reports' },
   { icon: Settings, label: 'Configurações', path: '/settings' },
@@ -80,15 +84,16 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       padding: '24px 12px',
       display: 'flex',
       flexDirection: 'column' as const,
-      gap: '8px',
+      gap: '4px',
+      overflowY: 'auto' as const,
     },
     menuItem: (isActive: boolean) => ({
       display: 'flex',
       alignItems: 'center',
       gap: '12px',
       width: '100%',
-      padding: isCollapsed ? '12px' : '12px 16px',
-      borderRadius: '12px',
+      padding: isCollapsed ? '10px' : '10px 16px',
+      borderRadius: '10px',
       border: 'none',
       cursor: 'pointer',
       transition: 'all 0.2s',
@@ -100,13 +105,14 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       color: isActive ? '#fff' : '#94a3b8',
     }),
     menuIcon: (isActive: boolean) => ({
-      width: '20px',
-      height: '20px',
+      width: '18px',
+      height: '18px',
       flexShrink: 0,
       color: isActive ? '#a78bfa' : 'inherit',
     }),
     menuLabel: {
       fontWeight: 500,
+      fontSize: '14px',
       whiteSpace: 'nowrap' as const,
     },
     footer: {

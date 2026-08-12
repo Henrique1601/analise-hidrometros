@@ -1,6 +1,5 @@
 import { motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
-import clsx from 'clsx';
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -13,17 +12,32 @@ interface ButtonProps {
   className?: string;
 }
 
-const variantMap = {
-  primary: 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg shadow-primary-500/25',
-  secondary: 'bg-dark-700/50 text-white border border-dark-600 hover:bg-dark-600/50',
-  ghost: 'text-dark-400 hover:text-white hover:bg-dark-700/50',
-  danger: 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/25',
+const variantStyles: Record<string, React.CSSProperties> = {
+  primary: {
+    background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+    color: '#fff',
+    boxShadow: '0 10px 25px rgba(139, 92, 246, 0.25)',
+  },
+  secondary: {
+    background: 'rgba(51, 65, 85, 0.5)',
+    color: '#fff',
+    border: '1px solid rgba(71, 85, 105, 0.5)',
+  },
+  ghost: {
+    background: 'transparent',
+    color: '#94a3b8',
+  },
+  danger: {
+    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+    color: '#fff',
+    boxShadow: '0 10px 25px rgba(239, 68, 68, 0.25)',
+  },
 };
 
-const sizeMap = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-base',
-  lg: 'px-6 py-3 text-lg',
+const sizeStyles: Record<string, React.CSSProperties> = {
+  sm: { padding: '6px 12px', fontSize: '13px' },
+  md: { padding: '10px 20px', fontSize: '14px' },
+  lg: { padding: '14px 28px', fontSize: '16px' },
 };
 
 export function Button({
@@ -34,52 +48,50 @@ export function Button({
   icon: Icon,
   disabled = false,
   loading = false,
-  className,
 }: ButtonProps) {
+  const baseStyle: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    fontWeight: 600,
+    borderRadius: '12px',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    opacity: disabled ? 0.5 : 1,
+    transition: 'all 0.2s',
+    border: 'none',
+    whiteSpace: 'nowrap',
+    ...variantStyles[variant],
+    ...sizeStyles[size],
+  };
+
   return (
     <motion.button
       whileHover={{ scale: disabled ? 1 : 1.02 }}
       whileTap={{ scale: disabled ? 1 : 0.98 }}
       onClick={onClick}
       disabled={disabled || loading}
-      className={clsx(
-        'relative flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 overflow-hidden',
-        variantMap[variant],
-        sizeMap[size],
-        disabled && 'opacity-50 cursor-not-allowed',
-        className
-      )}
+      style={baseStyle}
     >
-      {/* Loading spinner */}
       {loading && (
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+          style={{
+            width: '16px',
+            height: '16px',
+            border: '2px solid rgba(255,255,255,0.3)',
+            borderTopColor: '#fff',
+            borderRadius: '50%',
+          }}
         />
       )}
-      
-      {/* Icon */}
+
       {Icon && !loading && (
-        <motion.div
-          whileHover={{ rotate: 10 }}
-          transition={{ duration: 0.2 }}
-        >
-          <Icon className="w-5 h-5" />
-        </motion.div>
+        <Icon size={18} />
       )}
-      
-      {/* Text */}
+
       <span>{children}</span>
-      
-      {/* Hover shine effect */}
-      <motion.div
-        className="absolute inset-0 opacity-0"
-        whileHover={{ opacity: 0.2 }}
-        style={{
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-        }}
-      />
     </motion.button>
   );
 }
